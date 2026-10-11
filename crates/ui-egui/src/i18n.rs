@@ -126,6 +126,7 @@ language_table! {
     Ru, "ru", "Русский", "Cyrl", include_str!("../locales/ru.json");
     Fr, "fr", "Français", "Latn", include_str!("../locales/fr.json");
     Uk, "uk", "Українська", "Cyrl", include_str!("../locales/uk.json");
+    Ka, "ka", "ქართული", "Geor", include_str!("../locales/ka.json");
 }
 
 // The settings file stores the BCP-47 code (`"zh-hans"`), never the Rust variant name, so a
@@ -692,6 +693,7 @@ mod tests {
             ("app.language.german", Locale::De),
             ("app.language.russian", Locale::Ru),
             ("app.language.ukrainian", Locale::Uk),
+            ("app.language.georgian", Locale::Ka),
         ];
         // One command per language, and every command reachable from the menu table.
         assert_eq!(commands.len(), Locale::ALL.len());
@@ -914,6 +916,31 @@ mod tests {
             let Outcome::Done(reply) = crate::control::handle(&mut app, &ctx, &request) else { panic!("expected reply") };
             assert_eq!(reply["ok"], true);
             assert_eq!(language(), Locale::Uk);
+        }
+        set_language(Locale::En);
+    }
+
+    #[test]
+    fn georgian_switches_formats_counts_and_dates() {
+        let mut app = crate::LightcraftApp::new(lightcraft_engine::Session::with_demo(), Default::default());
+        app.run("app.language.georgian", serde_json::json!({})).unwrap();
+        assert_eq!(app.ui.language, Locale::Ka);
+        assert_eq!(crate::menubar::checked(&app, "app.language.georgian"), Some(true));
+        assert_eq!(tr("Light"), "სინათლე");
+        assert_eq!(date_group_label("2026-09-20", false), "კვირა, 20.09.2026");
+        assert_eq!(date_group_label("2026-09", false), "09.2026");
+        for n in [0, 1, 2, 5, 21] {
+            assert_eq!(tr_format!("Imported {} photo{}", n, if n == 1 { "" } else { "s" }), format!("იმპორტირებულია ფოტო: {n}"));
+        }
+        assert_eq!(tr_format!("Added {n} photo{} to “{}”", "s", "Trip", n = 3), "„Trip“-ს დაემატა ფოტო: 3");
+        let saved = serde_json::to_string(&app.ui).unwrap();
+        assert!(saved.contains(r#""language":"ka""#));
+        for code in ["ka", "ka-GE", "ka_GE.UTF-8"] {
+            assert_eq!(Locale::parse_tag(code), Some(Locale::Ka));
+        }
+        // no Mtavruli: Georgian UI text is written in lowercase Mkhedruli
+        for text in Locale::Ka.catalog().values() {
+            assert!(!text.chars().any(|c| ('\u{1C90}'..='\u{1CBF}').contains(&c)), "{text}");
         }
         set_language(Locale::En);
     }

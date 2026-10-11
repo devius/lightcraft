@@ -212,6 +212,22 @@ pub fn startup_failed_message(error: &str, log_file: Option<&str>) -> (String, S
     (tr("LightCraft could not start").to_string(), text)
 }
 
+/// Whether sentence case may upper-case `c`. Georgian has no case: upper-casing Mkhedruli would
+/// turn it into Mtavruli, a different (all-caps) script, so Georgian letters stay as written.
+pub fn capitalizes(c: char) -> bool {
+    !matches!(c, '\u{10A0}'..='\u{10FF}' | '\u{1C90}'..='\u{1CBF}' | '\u{2D00}'..='\u{2D2F}')
+}
+
+/// `text` with its first letter upper-cased ("its input" → "Its input"), unless [`capitalizes`]
+/// says that letter has no capital to take.
+pub fn upper_first(text: &str) -> String {
+    let mut chars = text.chars();
+    match chars.next() {
+        Some(first) if capitalizes(first) => first.to_uppercase().chain(chars).collect(),
+        _ => text.to_string(),
+    }
+}
+
 pub fn builtin_label(source: &str, builtin: bool) -> &str {
     if builtin { tr(source) } else { source }
 }
@@ -431,6 +447,15 @@ pub fn rules_label(rules: &lightcraft_catalog::RuleSet, catalog: &lightcraft_cat
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn sentence_case_keeps_georgian_lowercase() {
+        assert_eq!(upper_first("its input is not an image"), "Its input is not an image");
+        assert_eq!(upper_first("ფაილი ვერ იკითხება"), "ფაილი ვერ იკითხება");
+        assert_eq!(upper_first("ᲥᲐᲠᲗᲣᲚᲘ"), "ᲥᲐᲠᲗᲣᲚᲘ");
+        assert_eq!(upper_first(""), "");
+        assert!(capitalizes('a') && capitalizes('ж') && !capitalizes('ქ') && !capitalizes('Ⴀ') && !capitalizes('ⴀ'));
+    }
 
     #[test]
     fn every_language_has_a_catalog_covering_the_source() {

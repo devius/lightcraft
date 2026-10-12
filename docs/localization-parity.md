@@ -6,7 +6,7 @@ How far each interface language is from `full`. How to add or maintain a languag
 [localization.md](localization.md); per-language notes are in `localization-<code>.md`
 ([zh-hans](localization-zh-hans.md), [zh-hant](localization-zh-hant.md), [ja](localization-ja.md),
 [pt-br](localization-pt-br.md), [es](localization-es.md), [de](localization-de.md),
-[ru](localization-ru.md)).
+[ru](localization-ru.md), [ka](localization-ka.md)).
 
 ## The target
 

@@ -5,7 +5,7 @@ The interface ships in the language it is written in (English) plus every langua
 Chinese (`zh-hant`, Taiwan), Japanese (`ja`), Brazilian Portuguese (`pt-br`), Spanish (`es`), German (`de`), Russian (`ru`), French (`fr`), Ukrainian (`uk`) and Georgian (`ka`). This file is the reference for **adding or maintaining a language**; the per-language notes
 are in [`localization-zh-hans.md`](localization-zh-hans.md), [`localization-zh-hant.md`](localization-zh-hant.md),
 [`localization-ja.md`](localization-ja.md), [`localization-pt-br.md`](localization-pt-br.md), [`localization-es.md`](localization-es.md),
-[`localization-de.md`](localization-de.md) and [`localization-ru.md`](localization-ru.md).
+[`localization-de.md`](localization-de.md), [`localization-ru.md`](localization-ru.md) and [`localization-ka.md`](localization-ka.md).
 
 ## Adding a language
 

@@ -64,8 +64,8 @@ Please follow this table and the shared ArtCraft Georgian glossary when you add 
 
 ## Maintenance and checks
 
-Fixed texts: `crates/ui-egui/locales/ka.json` (2,600 entries). Messages with values:
-`crates/ui-egui/locales/ka-formats.json` (246 entries). The English keys stay unchanged; Rust checks
+Fixed texts: `crates/ui-egui/locales/ka.json` (2,719 entries). Messages with values:
+`crates/ui-egui/locales/ka-formats.json` (249 entries). The English keys stay unchanged; Rust checks
 the placeholders at build time. Strings not yet in the plain catalog show in English.
 
 ```sh

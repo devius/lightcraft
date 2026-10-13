@@ -33,7 +33,7 @@ until one is added to craft-fonts.
 | Source | Georgian |
 |---|---|
 | Library / Develop | ბიბლიოთეკა / დამუშავება |
-| File / Edit / View | ფაილი / რედაქტირება / ჩვენება |
+| File / Edit / View | ფაილი / რედაქტირება / ხედი |
 | Settings / General / Language | პარამეტრები / ზოგადი / ენა |
 | Import / Export | იმპორტი / ექსპორტი |
 | Photos / Albums / Folders | ფოტოები / ალბომები / საქაღალდეები |
@@ -58,7 +58,7 @@ until one is added to craft-fonts.
 | Feather / Threshold | კიდეების შერბილება / ზღვარი |
 | Rating / Flag / Keywords | შეფასება / დროშა / საკვანძო სიტყვები |
 | Reset / Revert | ჩამოყრა / წინა ვერსიაზე დაბრუნება |
-| Undo / Redo | დაბრუნება / ხელახლა შესრულება |
+| Undo / Redo | დაბრუნება / გამეორება |
 
 Please follow this table and the shared ArtCraft Georgian glossary when you add strings.
 

@@ -71,6 +71,8 @@ struct Options {
     store: String,
     workers: Option<usize>,
     reset: bool,
+    /// `?lang=ja`: the interface language when none was chosen in the app.
+    lang: Option<String>,
 }
 
 impl Options {
@@ -91,6 +93,7 @@ impl Options {
             store: get("store").filter(|s| s == "idb" || s == "memory").unwrap_or_else(|| "opfs".into()),
             workers: get("workers").and_then(|v| v.parse().ok()),
             reset: get("reset").is_some(),
+            lang: get("lang").filter(|v| !v.is_empty()),
         }
     }
 }
@@ -675,6 +678,13 @@ pub fn start(chinese_font: Vec<u8>) {
         log::warn!("lightcraft: no Simplified Chinese font supplied; Chinese-only glyphs will show as boxes");
     }
     let opts = Options::from_url();
+    // The interface starts in `?lang=`, else the first of the browser's languages LightCraft has;
+    // a language chosen in the app (kept in ui.json) still wins.
+    let mut languages: Vec<String> = opts.lang.iter().cloned().collect();
+    if let Some(w) = window() {
+        languages.extend(w.navigator().languages().iter().filter_map(|v| v.as_string()));
+    }
+    lightcraft_ui_egui::i18n::set_system_locales(languages);
     wasm_bindgen_futures::spawn_local(async move {
         // one tab per library: two would each keep their own copy and overwrite each other's saves
         if opts.store != "memory" && safety::acquire_tab_lock().await == Some(false) {

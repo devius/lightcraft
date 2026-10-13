@@ -99,7 +99,9 @@ or, with the app running (`--control 7980`), run the language command
 The settings file stores the BCP-47 code, never the Rust variant name, so a language can be renamed
 in code without invalidating anyone's saved preference. `LIGHTCRAFT_LANGUAGE` accepts what a system
 locale looks like (`zh_Hans`, `zh-CN`, `en_US`, `ja_JP.UTF-8`) and falls back to the base language
-when a region has no dedicated entry.
+when a region has no dedicated entry. Until a language is chosen in the app, the browser build starts
+in the language of `?lang=` in the address, else the first of the browser's languages
+(`navigator.languages`) that LightCraft has, else English.
 
 ## Release notes
 

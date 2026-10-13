@@ -147,9 +147,24 @@ thread_local! {
     static LOCALE: std::cell::Cell<Locale> = const { std::cell::Cell::new(Locale::En) };
 }
 
-/// The UI language from the environment (`LIGHTCRAFT_LANGUAGE=zh-hans`), for headless runs.
+/// The UI language from the environment (`LIGHTCRAFT_LANGUAGE=zh-hans`), for headless runs; else
+/// the first shipped one of the system's languages the shell passed in ([`set_system_locales`]:
+/// the browser's), else English.
 pub fn default_language() -> Locale {
-    std::env::var("LIGHTCRAFT_LANGUAGE").ok().and_then(|value| Locale::parse_tag(&value)).unwrap_or(Locale::En)
+    std::env::var("LIGHTCRAFT_LANGUAGE")
+        .ok()
+        .and_then(|value| Locale::parse_tag(&value))
+        .or_else(|| SYSTEM_LOCALES.get().and_then(|tags| tags.iter().find_map(|tag| Locale::parse_tag(tag))))
+        .unwrap_or(Locale::En)
+}
+
+/// The system's preferred languages, most preferred first, as the shell knows them.
+static SYSTEM_LOCALES: std::sync::OnceLock<Vec<String>> = std::sync::OnceLock::new();
+
+/// Tell [`default_language`] the system's preferred languages (the web shell: `?lang=` in the
+/// address, then `navigator.languages`). Set before the app starts; only the first call counts.
+pub fn set_system_locales(tags: Vec<String>) {
+    let _ = SYSTEM_LOCALES.set(tags);
 }
 
 pub fn set_language(language: Locale) {

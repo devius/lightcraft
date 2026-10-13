@@ -43,7 +43,10 @@ are in [`localization-zh-hans.md`](localization-zh-hans.md), [`localization-zh-h
 3. **Make sure the glyphs exist.** The script drives which craft-fonts faces the UI installs: a
    language whose script has no face in the build shows boxes (the test says so instead of failing).
    Fonts live in [storytold/craft-fonts](https://github.com/storytold/craft-fonts), never here; a
-   missing face is added there, not worked around in this repository.
+   missing face is added there, not worked around in this repository. Georgian is the one exception
+   until craft-fonts has a Georgian face: `theme::font_definitions` appends an installed system face
+   (macOS SF Georgian or Arial Unicode, Windows Sylfaen, Linux Noto Sans Georgian or DejaVu Sans), read
+   from the system at run time and never shipped; the web build has none.
 4. Run `cargo xtask ci` (it includes `fmt`, `clippy`, the tests, `parity` and the wasm check).
 
 ## How a message is found

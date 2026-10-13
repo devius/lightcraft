@@ -988,7 +988,7 @@ impl LightcraftApp {
             self.session.media.availability.run_in_background(std::sync::Arc::new(move || repaint.request_repaint()));
             self.styled = true;
             self.font_language = self.ui.language;
-        } else if self.font_language != self.ui.language {
+        } else if self.font_language != self.ui.language || theme::take_new_runtime_fallback() {
             // Shared Han characters take the active language's forms (Japanese faces for 日本語,
             // the Simplified Chinese face for 简体中文): rebuild the fallback order.
             theme::install_fonts_with_chinese(ctx, self.chinese_font.as_ref());

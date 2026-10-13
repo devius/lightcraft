@@ -71,6 +71,8 @@ struct Options {
     store: String,
     workers: Option<usize>,
     reset: bool,
+    /// `?lang=ka`: the interface language when none was chosen in the app.
+    lang: Option<String>,
 }
 
 impl Options {
@@ -91,6 +93,7 @@ impl Options {
             store: get("store").filter(|s| s == "idb" || s == "memory").unwrap_or_else(|| "opfs".into()),
             workers: get("workers").and_then(|v| v.parse().ok()),
             reset: get("reset").is_some(),
+            lang: get("lang").filter(|v| !v.is_empty()),
         }
     }
 }
@@ -665,6 +668,43 @@ impl eframe::App for WebApp {
     }
 }
 
+/// The Georgian interface face, when the site serves one beside the page; without it Georgian
+/// shows boxes, as before.
+const FALLBACK_FONT_URL: &str = "fonts/NotoSansGeorgian.ttf";
+
+fn load_fallback_font() {
+    wasm_bindgen_futures::spawn_local(async {
+        match fetch_font(FALLBACK_FONT_URL).await {
+            Ok(bytes) => {
+                lightcraft_ui_egui::theme::set_runtime_fallback_font(bytes);
+                CTX.with(|c| {
+                    if let Some(c) = c.borrow().as_ref() {
+                        c.request_repaint();
+                    }
+                });
+            }
+            Err(e) => log::info!("no interface fallback font at {FALLBACK_FONT_URL}: {e}"),
+        }
+    });
+}
+
+/// A font file from the site: only a TrueType/OpenType file is returned (a host may answer a
+/// missing file with its index page).
+async fn fetch_font(url: &str) -> Result<Vec<u8>, String> {
+    let js = |e: wasm_bindgen::JsValue| format!("{e:?}");
+    let window = window().ok_or("no window")?;
+    let resp: web_sys::Response = wasm_bindgen_futures::JsFuture::from(window.fetch_with_str(url)).await.map_err(js)?.dyn_into().map_err(js)?;
+    if !resp.ok() {
+        return Err(format!("HTTP {}", resp.status()));
+    }
+    let buf = wasm_bindgen_futures::JsFuture::from(resp.array_buffer().map_err(js)?).await.map_err(js)?;
+    let bytes = js_sys::Uint8Array::new(&buf).to_vec();
+    match bytes.get(..4) {
+        Some([0, 1, 0, 0] | b"OTTO" | b"true") if bytes.len() <= 32 << 20 => Ok(bytes),
+        _ => Err("not a font file".into()),
+    }
+}
+
 /// Start the app with the separately fetched Simplified Chinese font (empty in font-free builds).
 #[wasm_bindgen]
 pub fn start(chinese_font: Vec<u8>) {
@@ -675,6 +715,14 @@ pub fn start(chinese_font: Vec<u8>) {
         log::warn!("lightcraft: no Simplified Chinese font supplied; Chinese-only glyphs will show as boxes");
     }
     let opts = Options::from_url();
+    // The interface starts in `?lang=`, else the first of the browser's languages LightCraft has;
+    // a language chosen in the app (kept in ui.json) still wins.
+    let mut languages: Vec<String> = opts.lang.iter().cloned().collect();
+    if let Some(w) = window() {
+        languages.extend(w.navigator().languages().iter().filter_map(|v| v.as_string()));
+    }
+    lightcraft_ui_egui::i18n::set_system_locales(languages);
+    load_fallback_font();
     wasm_bindgen_futures::spawn_local(async move {
         // one tab per library: two would each keep their own copy and overwrite each other's saves
         if opts.store != "memory" && safety::acquire_tab_lock().await == Some(false) {

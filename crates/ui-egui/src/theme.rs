@@ -367,6 +367,25 @@ fn georgian_system_font() -> Option<Arc<FontData>> {
         GEORGIAN_SYSTEM_FONTS.iter().find_map(|path| std::fs::read(path).ok()).map(|bytes| Arc::new(FontData::from_owned(bytes)))
     })
     .clone()
+    .or_else(|| WEB_GEORGIAN.get().cloned())
+}
+
+/// The Georgian face the web shell fetched from beside the page (the browser lends no fonts).
+static WEB_GEORGIAN: std::sync::OnceLock<Arc<FontData>> = std::sync::OnceLock::new();
+/// The fetched face arrived and the installed fonts don't have it yet.
+static WEB_GEORGIAN_NEW: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
+
+/// Use `bytes` (a font file) as the Georgian face when no installed one is found; the app installs
+/// it on the next frame. Only the first call counts.
+pub fn set_runtime_fallback_font(bytes: Vec<u8>) {
+    if WEB_GEORGIAN.set(Arc::new(FontData::from_owned(bytes))).is_ok() {
+        WEB_GEORGIAN_NEW.store(true, std::sync::atomic::Ordering::Relaxed);
+    }
+}
+
+/// Whether a fetched face arrived since the last call.
+pub(crate) fn take_new_runtime_fallback() -> bool {
+    WEB_GEORGIAN_NEW.swap(false, std::sync::atomic::Ordering::Relaxed)
 }
 
 /// The font families used by this app instance, including the browser's separately loaded face.

@@ -330,62 +330,7 @@ pub fn font_definitions_with_chinese(craft: &'static [lightcraft_engine::CraftFo
         mono_fallback.push(WEB_CHINESE_FONT.into());
     }
     mono.extend(mono_fallback);
-    if let Some(georgian) = georgian_system_font() {
-        fonts.font_data.insert(GEORGIAN_FONT.into(), georgian);
-        for family in fonts.families.values_mut() {
-            family.push(GEORGIAN_FONT.into());
-        }
-    }
     fonts
-}
-
-const GEORGIAN_FONT: &str = "system-georgian";
-
-/// Installed faces with Georgian letters, in preference order: Inter, egui's defaults and
-/// craft-fonts have none (craft-fonts has no Georgian face yet), so the UI borrows the system's.
-const GEORGIAN_SYSTEM_FONTS: &[&str] = &[
-    "/System/Library/Fonts/SFGeorgian.ttf",
-    "/System/Library/Fonts/Supplemental/Arial Unicode.ttf",
-    "C:\\Windows\\Fonts\\sylfaen.ttf",
-    "/usr/share/fonts/truetype/noto/NotoSansGeorgian-Regular.ttf",
-    "/usr/share/fonts/noto/NotoSansGeorgian-Regular.ttf",
-    "/usr/share/fonts/google-noto/NotoSansGeorgian-Regular.ttf",
-    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-    "/usr/share/fonts/dejavu/DejaVuSans.ttf",
-    "/usr/share/fonts/TTF/DejaVuSans.ttf",
-    "/usr/local/share/fonts/dejavu/DejaVuSans.ttf",
-];
-
-/// The first installed Georgian face, read once per process (none on the web, or when no face is
-/// installed: Georgian text then shows boxes, as before).
-fn georgian_system_font() -> Option<Arc<FontData>> {
-    static FONT: std::sync::OnceLock<Option<Arc<FontData>>> = std::sync::OnceLock::new();
-    FONT.get_or_init(|| {
-        if cfg!(target_arch = "wasm32") {
-            return None;
-        }
-        GEORGIAN_SYSTEM_FONTS.iter().find_map(|path| std::fs::read(path).ok()).map(|bytes| Arc::new(FontData::from_owned(bytes)))
-    })
-    .clone()
-    .or_else(|| WEB_GEORGIAN.get().cloned())
-}
-
-/// The Georgian face the web shell fetched from beside the page (the browser lends no fonts).
-static WEB_GEORGIAN: std::sync::OnceLock<Arc<FontData>> = std::sync::OnceLock::new();
-/// The fetched face arrived and the installed fonts don't have it yet.
-static WEB_GEORGIAN_NEW: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(false);
-
-/// Use `bytes` (a font file) as the Georgian face when no installed one is found; the app installs
-/// it on the next frame. Only the first call counts.
-pub fn set_runtime_fallback_font(bytes: Vec<u8>) {
-    if WEB_GEORGIAN.set(Arc::new(FontData::from_owned(bytes))).is_ok() {
-        WEB_GEORGIAN_NEW.store(true, std::sync::atomic::Ordering::Relaxed);
-    }
-}
-
-/// Whether a fetched face arrived since the last call.
-pub(crate) fn take_new_runtime_fallback() -> bool {
-    WEB_GEORGIAN_NEW.swap(false, std::sync::atomic::Ordering::Relaxed)
 }
 
 /// The font families used by this app instance, including the browser's separately loaded face.

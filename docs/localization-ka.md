@@ -26,7 +26,8 @@ are count-neutral, noun first (`იმპორტირებულია ფ�
 Inter has no Georgian letters, so the UI draws Georgian with craft-fonts' Noto Sans Georgian (`Geor`),
 like the Thai and Arabic faces: desktop release builds embed it, and the web build (`cargo xtask web`
 with `CRAFT_FONTS_DIR`, as the release does) ships it beside the WASM in `fonts/` and loads it before
-start-up. A build without `CRAFT_FONTS_DIR` has no Georgian face and shows boxes.
+start-up. A build without `CRAFT_FONTS_DIR`, or with a craft-fonts checkout older than `a71c20e3`
+(whose manifest has no Georgian face), has no Georgian face and shows boxes.
 
 ## Terminology
 

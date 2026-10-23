@@ -66,7 +66,7 @@ fn web_faces_in_manifest(manifest: &str) -> Result<Vec<WebFace<'_>>, String> {
         match found {
             Some(f) => {
                 for path in [f[2], f[5]] {
-                    if path.starts_with('/') || path.split('/').any(|c| c == "..") {
+                    if !Path::new(path).starts_with(FONTS_DIR) || path.starts_with('/') || path.split('/').any(|c| c == "..") {
                         return Err(format!("{family} {style}: {path} leaves the craft-fonts checkout"));
                     }
                 }
@@ -399,6 +399,8 @@ mod tests {
         assert!(web_faces_in_manifest(&no_thai).unwrap_err().contains("Noto Sans Thai Regular is missing"));
         let escape = manifest.replace("fonts/thai/NotoSansThai.ttf", "../NotoSansThai.ttf");
         assert!(web_faces_in_manifest(&escape).is_err());
+        let root = manifest.replace("fonts/thai/NotoSansThai.ttf", "index.html");
+        assert!(web_faces_in_manifest(&root).is_err());
     }
 
     /// The page fetches the same manifest name the bundle writes, and passes it to `start`.

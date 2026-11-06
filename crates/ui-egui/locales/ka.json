@@ -3972,5 +3972,9 @@
   "The place names list towns of 15,000 people or more: in a smaller one, City gets the nearest larger town.": "ადგილების სახელების სიაში 15 000 ან მეტი მცხოვრების მქონე დასახლებებია: უფრო პატარაში „ქალაქი“ უახლოეს დიდ დასახლებას იღებს.",
   "Unit": "ერთეული",
   "Unknown date": "უცნობი თარიღი",
-  "Stopped at the scan limit: there may be more photos": "სკანირების ლიმიტზე გაჩერდა: შესაძლოა სხვა ფოტოებიც არის"
+  "Stopped at the scan limit: there may be more photos": "სკანირების ლიმიტზე გაჩერდა: შესაძლოა სხვა ფოტოებიც არის",
+  "Camera preview": "კამერის წინასწარი ხედი",
+  "The camera's own JPEG, shown until LightCraft has rendered the raw. Judge colour and tone on the rendered photo.": "კამერის საკუთარი JPEG, რომელიც ჩანს, სანამ LightCraft RAW-ს დაარენდერებს. ფერი და ტონი დარენდერებულ ფოტოზე შეაფასეთ.",
+  "Remove Hot Pixels": "ცხელი პიქსელების მოცილება",
+  "Cancel Pending Photo Action": "ფოტოს მოლოდინში მყოფი მოქმედების გაუქმება"
 }
